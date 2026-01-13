@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { type Request, type Response, type NextFunction } from 'express';
 import { tokenStore } from '../store.js';
+import { UnauthorizedError } from '../utils/errors.js';
 
 // Extend Express Request type to include user
-
 declare global {
   namespace Express {
     interface Request {
@@ -36,10 +36,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   // Check if the Authorization header is present
   // Without it, we cannot authenticate the request
   if (!authHeader) {
-    res.status(401).json({
-      error: 'Authentication required',
-      message: 'Please provide an Authorization header with a valid token',
-    });
+    next(new UnauthorizedError('Please provide an Authorization header with a valid token'));
     return;
   }
   // We expect the token to be sent as a Bearer token
@@ -53,23 +50,14 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     // which splits to ["Bearer"] after trim()
     if (parts.length === 1 && parts[0] === 'Bearer') {
       if (authHeader === 'Bearer') {
-        res.status(401).json({
-          error: 'Invalid authorization format',
-          message: 'Authorization header must be in format: Bearer <token>',
-        });
+        next(new UnauthorizedError('Authorization header must be in format: Bearer <token>'));
       } else {
-        res.status(401).json({
-          error: 'Invalid token',
-          message: 'Token cannot be empty',
-        });
+        next(new UnauthorizedError('Token cannot be empty'));
       }
       return;
     }
 
-    res.status(401).json({
-      error: 'Invalid authorization format',
-      message: 'Authorization header must be in format: Bearer <token>',
-    });
+    next(new UnauthorizedError('Authorization header must be in format: Bearer <token>'));
     return;
   }
 
@@ -79,20 +67,14 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   // We only support Bearer tokens for this API
   // Other schemes (Basic, Digest, etc.) are not accepted
   if (scheme !== 'Bearer') {
-    res.status(401).json({
-      error: 'Invalid authentication scheme',
-      message: 'Only Bearer token authentication is supported',
-    });
+    next(new UnauthorizedError('Only Bearer token authentication is supported'));
     return;
   }
 
   // Ensure the token is not empty
   // An empty token is invalid and cannot authenticate a user
   if (!token || token.trim() === '') {
-    res.status(401).json({
-      error: 'Invalid token',
-      message: 'Token cannot be empty',
-    });
+    next(new UnauthorizedError('Token cannot be empty'));
     return;
   }
 
@@ -100,10 +82,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   // This confirms the token was previously issued by our /api/token endpoint
   // If the token doesn't exist, it's either invalid or has been revoked
   if (!tokenStore.has(token)) {
-    res.status(401).json({
-      error: 'Invalid or expired token',
-      message: 'The provided token is not valid. Please request a new token.',
-    });
+    next(new UnauthorizedError('The provided token is not valid. Please request a new token.'));
     return;
   }
 

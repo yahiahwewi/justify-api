@@ -1,12 +1,13 @@
-import { type Request, type Response } from 'express';
+import { type NextFunction, type Request, type Response } from 'express';
 import { randomUUID } from 'crypto';
 import { tokenStore } from '../store.js';
+import { BadRequestError } from '../utils/errors.js';
 
-export const generateToken = (req: Request, res: Response): void => {
+export const generateToken = (req: Request, res: Response, next: NextFunction): void => {
   const { email } = req.body;
 
   if (!email || typeof email !== 'string' || email.trim() === '') {
-    res.status(400).json({ error: 'Email is required' });
+    next(new BadRequestError('Email is required'));
     return;
   }
 

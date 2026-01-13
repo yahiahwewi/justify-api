@@ -3,6 +3,7 @@ import express from 'express';
 import { rateLimit } from '../middleware/rate-limit.middleware.js';
 import { usageStore } from '../store.js';
 import { MAX_WORDS_PER_DAY } from '../services/rate-limit.service.js';
+import { errorHandler } from '../middleware/error.middleware.js';
 
 describe('Rate Limit Middleware', () => {
   let app: express.Application;
@@ -23,6 +24,8 @@ describe('Rate Limit Middleware', () => {
     app.post('/justify', rateLimit, (req, res) => {
       res.status(200).send('Success');
     });
+
+    app.use(errorHandler);
   });
 
   it('should allow request within limit', async () => {
@@ -39,7 +42,7 @@ describe('Rate Limit Middleware', () => {
     // Set usage to limit
     usageStore.set(token, {
       words: MAX_WORDS_PER_DAY,
-      lastReset: today,
+      lastReset: today || '',
     });
 
     const response = await request(app)

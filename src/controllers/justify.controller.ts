@@ -1,5 +1,6 @@
-import { type Request, type Response } from 'express';
+import { type NextFunction, type Request, type Response } from 'express';
 import { justifyText } from '../utils/textJustifier.js';
+import { BadRequestError } from '../utils/errors.js';
 
 /**
  * Justify Controller
@@ -15,18 +16,16 @@ import { justifyText } from '../utils/textJustifier.js';
  *
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const justify = (req: Request, res: Response): void => {
+export const justify = (req: Request, res: Response, next: NextFunction): void => {
   // Extract the plain text body
   // Express text parser middleware converts the body to a string
   const text = typeof req.body === 'string' ? req.body : '';
 
   // Validate that we received text
   if (!text || text.trim() === '') {
-    res.status(400).json({
-      error: 'Bad Request',
-      message: 'Request body must contain text to justify',
-    });
+    next(new BadRequestError('Request body must contain text to justify'));
     return;
   }
 

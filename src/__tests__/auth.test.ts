@@ -30,21 +30,24 @@ describe('POST /api/token', () => {
     const response = await request(app).post('/api/token').send({}).expect(400);
 
     expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Email is required');
+    expect(response.body.error).toBe('Bad Request');
+    expect(response.body.message).toBe('Email is required');
   });
 
   it('should return 400 when email is not a string', async () => {
     const response = await request(app).post('/api/token').send({ email: 123 }).expect(400);
 
     expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Email is required');
+    expect(response.body.error).toBe('Bad Request');
+    expect(response.body.message).toBe('Email is required');
   });
 
   it('should return 400 when email is empty string', async () => {
     const response = await request(app).post('/api/token').send({ email: '' }).expect(400);
 
     expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Email is required');
+    expect(response.body.error).toBe('Bad Request');
+    expect(response.body.message).toBe('Email is required');
   });
 
   it('should generate different tokens for the same email', async () => {

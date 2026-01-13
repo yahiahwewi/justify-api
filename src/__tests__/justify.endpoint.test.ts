@@ -36,7 +36,7 @@ describe('POST /api/justify', () => {
       .send('Some text')
       .expect(401);
 
-    expect(response.body.error).toBe('Authentication required');
+    expect(response.body.error).toBe('Unauthorized');
   });
 
   it('should return 401 with invalid token', async () => {
@@ -47,7 +47,7 @@ describe('POST /api/justify', () => {
       .send('Some text')
       .expect(401);
 
-    expect(response.body.error).toBe('Invalid or expired token');
+    expect(response.body.error).toBe('Unauthorized');
   });
 
   it('should return 400 with empty body', async () => {

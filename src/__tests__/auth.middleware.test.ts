@@ -2,6 +2,7 @@ import request from 'supertest';
 import express, { type Application } from 'express';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { tokenStore } from '../store.js';
+import { errorHandler } from '../middleware/error.middleware.js';
 
 describe('Authentication Middleware', () => {
   let app: Application;
@@ -23,6 +24,9 @@ describe('Authentication Middleware', () => {
         user: req.user,
       });
     });
+
+    // Add error handler to process thrown ApiErrors
+    app.use(errorHandler);
 
     // Add a valid token to the store
     tokenStore.set(validToken, validEmail);
@@ -47,7 +51,7 @@ describe('Authentication Middleware', () => {
     it('should reject requests without Authorization header', async () => {
       const response = await request(app).get('/protected').expect(401);
 
-      expect(response.body.error).toBe('Authentication required');
+      expect(response.body.error).toBe('Unauthorized');
       expect(response.body.message).toContain('Authorization header');
     });
   });
@@ -59,7 +63,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'BearerInvalidFormat')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authorization format');
+      expect(response.body.error).toBe('Unauthorized');
       expect(response.body.message).toContain('Bearer <token>');
     });
 
@@ -69,7 +73,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Bearer token extra-part')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authorization format');
+      expect(response.body.error).toBe('Unauthorized');
     });
 
     it('should reject Authorization header with only scheme', async () => {
@@ -78,7 +82,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Bearer')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authorization format');
+      expect(response.body.error).toBe('Unauthorized');
     });
   });
 
@@ -89,7 +93,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Basic dGVzdDp0ZXN0')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authentication scheme');
+      expect(response.body.error).toBe('Unauthorized');
       expect(response.body.message).toContain('Bearer token');
     });
 
@@ -99,7 +103,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Custom my-token')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authentication scheme');
+      expect(response.body.error).toBe('Unauthorized');
     });
   });
 
@@ -110,7 +114,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Bearer ')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authorization format');
+      expect(response.body.error).toBe('Unauthorized');
     });
 
     it('should reject whitespace-only token', async () => {
@@ -119,7 +123,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Bearer    ')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid authorization format');
+      expect(response.body.error).toBe('Unauthorized');
     });
   });
 
@@ -130,7 +134,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', 'Bearer non-existent-token')
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid or expired token');
+      expect(response.body.error).toBe('Unauthorized');
       expect(response.body.message).toContain('not valid');
     });
 
@@ -143,7 +147,7 @@ describe('Authentication Middleware', () => {
         .set('Authorization', `Bearer ${validToken}`)
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid or expired token');
+      expect(response.body.error).toBe('Unauthorized');
     });
   });
 

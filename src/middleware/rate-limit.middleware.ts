@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { checkRateLimit } from '../services/rate-limit.service.js';
+import { PaymentRequiredError, UnauthorizedError } from '../utils/errors.js';
 
 /**
  * Rate Limit Middleware
@@ -24,7 +25,7 @@ export const rateLimit = (req: Request, res: Response, next: NextFunction): void
 
   if (!user || !user.token) {
     // Should typically not happen if auth middleware is present
-    res.status(401).json({ error: 'Unauthorized' });
+    next(new UnauthorizedError('User authentication context missing'));
     return;
   }
 
@@ -32,10 +33,7 @@ export const rateLimit = (req: Request, res: Response, next: NextFunction): void
   if (!checkRateLimit(user.token, wordCount)) {
     // Return 402 Payment Required as per requirement
     // This indicates the free quota is exceeded
-    res.status(402).json({
-      error: 'Payment Required',
-      message: 'Daily word limit of 80,000 words exceeded.',
-    });
+    next(new PaymentRequiredError('Daily word limit of 80,000 words exceeded.'));
     return;
   }
 
