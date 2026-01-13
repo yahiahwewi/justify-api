@@ -28,8 +28,8 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
         });
         return;
     }
-    // This is a standard authentication scheme defined in RFC 6750
-    // It keeps the API stateless and easy to scale
+    // We expect the token to be sent as a Bearer token
+    // This keeps the API stateless and easy to scale
     const parts = authHeader.trim().split(/\s+/);
 
     // Validate the Authorization header format
