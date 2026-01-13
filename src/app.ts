@@ -6,7 +6,7 @@ app.use(express.json());
 app.use(express.text());
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('Justify API is running');
+  res.send('Justify API is running');
 });
 
 export default app;
