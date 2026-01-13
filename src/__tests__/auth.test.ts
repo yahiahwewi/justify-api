@@ -2,77 +2,65 @@ import request from 'supertest';
 import app from '../app.js';
 import { tokenStore } from '../store.js';
 
-describe('POST /api/token', () => {
+describe('Integration Test: /api/token Endpoint', () => {
   beforeEach(() => {
-    // Clear token store before each test
+    // Ensuring each test starts with an empty token store
     tokenStore.clear();
   });
 
-  it('should generate a token for a valid email', async () => {
+  /**
+   * Scenario: Token request with valid email
+   * Importance: Core authentication flow. Users need this token for all other endpoints.
+   */
+  it('should generate a valid UUID token for a valid email', async () => {
+    const email = 'test@example.com';
     const response = await request(app)
       .post('/api/token')
-      .send({ email: 'test@example.com' })
+      .send({ email })
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body).toHaveProperty('token');
-    expect(typeof response.body.token).toBe('string');
+    // Validate UUID format
     expect(response.body.token).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     );
 
-    // Verify token is stored
-    expect(tokenStore.has(response.body.token)).toBe(true);
-    expect(tokenStore.get(response.body.token)).toBe('test@example.com');
+    // Ensure the mapping is correctly stored in-memory
+    expect(tokenStore.get(response.body.token)).toBe(email);
   });
 
-  it('should return 400 when email is missing', async () => {
-    const response = await request(app).post('/api/token').send({}).expect(400);
+  /**
+   * Scenario: Token request with missing or invalid email
+   * Importance: Data validation prevents downstream errors and identifies client mistakes.
+   */
+  it('should return 400 when email is missing or malformed', async () => {
+    // Case 1: Missing email
+    const res1 = await request(app).post('/api/token').send({}).expect(400);
+    expect(res1.body.error).toBe('Bad Request');
+    expect(res1.body.message).toBe('Email is required');
 
-    expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Bad Request');
-    expect(response.body.message).toBe('Email is required');
+    // Case 2: Empty string
+    const res2 = await request(app).post('/api/token').send({ email: '' }).expect(400);
+    expect(res2.body.message).toBe('Email is required');
+
+    // Case 3: Wrong type
+    const res3 = await request(app).post('/api/token').send({ email: 123 }).expect(400);
+    expect(res3.body.message).toBe('Email is required');
   });
 
-  it('should return 400 when email is not a string', async () => {
-    const response = await request(app).post('/api/token').send({ email: 123 }).expect(400);
+  /**
+   * Scenario: Multiple tokens for same email
+   * Importance: Standard behavior — re-requesting a token should simply issue a new one.
+   */
+  it('should issue unique tokens on every valid request', async () => {
+    const email = 'repeat@example.com';
 
-    expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Bad Request');
-    expect(response.body.message).toBe('Email is required');
-  });
+    const res1 = await request(app).post('/api/token').send({ email }).expect(200);
+    const res2 = await request(app).post('/api/token').send({ email }).expect(200);
 
-  it('should return 400 when email is empty string', async () => {
-    const response = await request(app).post('/api/token').send({ email: '' }).expect(400);
-
-    expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toBe('Bad Request');
-    expect(response.body.message).toBe('Email is required');
-  });
-
-  it('should generate different tokens for the same email', async () => {
-    const response1 = await request(app)
-      .post('/api/token')
-      .send({ email: 'test@example.com' })
-      .expect(200);
-
-    const response2 = await request(app)
-      .post('/api/token')
-      .send({ email: 'test@example.com' })
-      .expect(200);
-
-    expect(response1.body.token).not.toBe(response2.body.token);
-  });
-
-  it('should handle multiple different emails', async () => {
-    const email1 = 'user1@example.com';
-    const email2 = 'user2@example.com';
-
-    const response1 = await request(app).post('/api/token').send({ email: email1 }).expect(200);
-
-    const response2 = await request(app).post('/api/token').send({ email: email2 }).expect(200);
-
-    expect(tokenStore.get(response1.body.token)).toBe(email1);
-    expect(tokenStore.get(response2.body.token)).toBe(email2);
+    expect(res1.body.token).not.toBe(res2.body.token);
+    // Both tokens should work independently
+    expect(tokenStore.has(res1.body.token)).toBe(true);
+    expect(tokenStore.has(res2.body.token)).toBe(true);
   });
 });

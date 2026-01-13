@@ -65,47 +65,46 @@ const justifyLine = (words: string[], currentLength: number): string => {
  * @returns Fully justified text
  */
 export const justifyText = (text: string): string => {
-  // Split text into paragraphs based on newlines
-  // We preserve paragraph structure as per requirements
-  const paragraphs = text.split(/\n\s*\n|\n/); // Simple split by newline
+  if (!text || text.trim() === '') {
+    return '';
+  }
+
+  // Split text into paragraphs based on one or more newlines
+  const paragraphs = text.split(/\n+/).filter((p) => p.trim() !== '');
 
   const justifiedParagraphs = paragraphs.map((paragraph) => {
-    // Normalize whitespace: replace multiple spaces/tabs with single space
-    // This ensures we start with a clean slate for spacing
+    // Normalize whitespace
     const words = paragraph.trim().split(/\s+/);
 
-    // Handle empty paragraphs
     if (words.length === 0 || (words.length === 1 && words[0] === '')) {
       return '';
     }
 
     const lines: string[] = [];
     let currentLineWords: string[] = [];
-    let currentLineLength = 0; // Length of characters specifically
+    let currentLineLength = 0;
 
     for (const word of words) {
-      // Check if adding this word + a mandatory space exceeds standard
-      // We add 1 for the space that would precede this word (unless it's first)
       const spaceNeeded = currentLineWords.length > 0 ? 1 : 0;
 
       if (currentLineLength + spaceNeeded + word.length <= MAX_LINE_LENGTH) {
-        // Word fits in current line
         currentLineWords.push(word);
         currentLineLength += word.length + spaceNeeded;
       } else {
-        // Word doesn't fit, justify the current line and start a new one
-        // We calculate length without spaces for the justifier function
-        const lengthForJustify = currentLineLength - (currentLineWords.length - 1);
-        lines.push(justifyLine(currentLineWords, lengthForJustify));
+        // Justify the current line if it contains words
+        if (currentLineWords.length > 0) {
+          const lengthWithoutSpaces =
+            currentLineLength - (currentLineWords.length - 1);
+          lines.push(justifyLine(currentLineWords, lengthWithoutSpaces));
+        }
 
-        // Start new line with current word
+        // Reset for the new line starting with this word
         currentLineWords = [word];
         currentLineLength = word.length;
       }
     }
 
-    // Handle the last line of the paragraph
-    // The last line must remain left-aligned, so we simply join with single spaces
+    // Handle the last line (left-aligned)
     if (currentLineWords.length > 0) {
       lines.push(currentLineWords.join(' '));
     }
@@ -113,6 +112,5 @@ export const justifyText = (text: string): string => {
     return lines.join('\n');
   });
 
-  // Rejoin paragraphs with a newline
-  return justifiedParagraphs.join('\n');
+  return justifiedParagraphs.filter((p) => p !== '').join('\n');
 };
