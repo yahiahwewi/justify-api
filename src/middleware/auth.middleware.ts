@@ -1,6 +1,19 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { tokenStore } from '../store.js';
 
+// Extend Express Request type to include user
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                email: string;
+                token: string;
+            };
+        }
+    }
+}
+
 /**
  * Authentication Middleware
  *
@@ -99,9 +112,9 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 
     // Attach user context to the request object
     // This allows downstream handlers to know who made the request
-    // We use a custom property to avoid conflicts with Express's built-in properties
-    (req as any).user = {
-        email,
+    // We use the extended Request type defined above
+    req.user = {
+        email: email || '',
         token,
     };
 
