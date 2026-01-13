@@ -5,7 +5,7 @@ import { tokenStore } from '../store.js';
 export const generateToken = (req: Request, res: Response): void => {
   const { email } = req.body;
 
-  if (!email || typeof email !== 'string') {
+  if (!email || typeof email !== 'string' || email.trim() === '') {
     res.status(400).json({ error: 'Email is required' });
     return;
   }
