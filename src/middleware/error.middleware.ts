@@ -40,15 +40,17 @@ export const errorHandler = (
     message = err.message;
   }
 
-  // Log the error for debugging
+  // Log the error for debugging (skipped in tests to keep output clean)
   // In production, you'd send this to a logging service
-  console.error('[Error]', {
-    statusCode,
-    message,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-  });
+  if (process.env.NODE_ENV !== 'test') {
+    console.error('[Error]', {
+      statusCode,
+      message,
+      stack: err.stack,
+      path: req.path,
+      method: req.method,
+    });
+  }
 
   // Send consistent error response
   // We use a simple format: { error: string, message?: string }
