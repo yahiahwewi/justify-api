@@ -20,7 +20,7 @@ describe('Authentication Middleware', () => {
     app.get('/protected', authenticate, (req, res) => {
       res.json({
         message: 'Access granted',
-        user: (req as any).user,
+        user: req.user,
       });
     });
 
