@@ -1,116 +1,114 @@
 /**
  * Text Justification Utility
  *
- * This module provides functionality to fully justify text to a specific line width (80 chars).
- * It ensures that standard lines have even spacing distributed from left to right,
- * while the last line of every paragraph remains left-aligned.
+ * Implements a "Logique Pure" algorithm to justify text to exactly 80 characters.
+ *
+ * Constraints:
+ * 1. Line length = 80 chars exactly (for non-last lines).
+ * 2. Last line of paragraph = left-aligned.
+ * 3. Spaces distributed evenly from left to right.
+ * 4. Preservation of word integrity and paragraph logic.
  */
 
-const MAX_LINE_LENGTH = 80;
+const MAX_WIDTH = 80;
 
 /**
- * Justifies a single line of words to exactly MAX_LINE_LENGTH.
+ * Justifies a single line of words to exactly MAX_WIDTH characters.
+ * Calculates space distribution according to typographic standards.
  *
- * @param words - Array of words for the current line
- * @param currentLength - Total length of words in the line (without spaces)
- * @returns Justified string
+ * @param words Array of words to justify
+ * @param totalChars Total number of characters in all words (sum of lengths)
  */
-const justifyLine = (words: string[], currentLength: number): string => {
-  // If there's only one word, we cannot justify it with spaces between words.
-  // We just return the word, or potentially pad it (though usually left-aligned is fine for single words).
-  if (words.length === 1) {
+const justifyLine = (words: string[], totalChars: number): string => {
+  // If only one word, we cannot distribute spaces in gaps, so return as is.
+  // Note: The main loop handles word packing such that this usually only happens for 80+ char words.
+  if (words.length <= 1) {
     return words[0] || '';
   }
 
-  // Calculate total spaces needed to reach MAX_LINE_LENGTH
-  const totalSpacesNeeded = MAX_LINE_LENGTH - currentLength;
-
-  // Calculate gaps between words (words array length - 1)
+  const totalSpaces = MAX_WIDTH - totalChars;
   const gaps = words.length - 1;
 
-  // Base spaces per gap
-  const spacesPerGap = Math.floor(totalSpacesNeeded / gaps);
+  // Each gap gets at least floor(TotalSpaces / Gaps)
+  const spaceMin = Math.floor(totalSpaces / gaps);
+  // Remainder spaces are distributed one-by-one to the first 'reste' gaps
+  let reste = totalSpaces % gaps;
 
-  // Extra spaces to distribute (from left to right)
-  // These are the remainder spaces that don't divide evenly
-  let extraSpaces = totalSpacesNeeded % gaps;
-
-  let line = '';
-
+  let result = '';
   for (let i = 0; i < words.length; i++) {
-    line += words[i];
+    result += words[i];
 
-    // If it's not the last word, add spaces
+    // If not the last word, add calculated spaces
     if (i < gaps) {
-      // Add base spaces
-      line += ' '.repeat(spacesPerGap);
-
-      // We distribute extra spaces from left to right
-      // to mimic standard text justification behavior
-      if (extraSpaces > 0) {
-        line += ' ';
-        extraSpaces--;
-      }
+      const currentSpaces = spaceMin + (reste > 0 ? 1 : 0);
+      result += ' '.repeat(currentSpaces);
+      if (reste > 0) reste--;
     }
   }
 
-  return line;
+  return result;
 };
 
 /**
- * Main function to justify text.
- * Handles paragraph splitting and line building logic.
+ * Justifies input text to a fixed width of 80 characters.
+ * Follows a multi-step "Pure Logic" approach as requested.
  *
- * @param text - The raw input text
- * @returns Fully justified text
+ * @param text The raw input text
  */
 export const justifyText = (text: string): string => {
   if (!text || text.trim() === '') {
     return '';
   }
 
-  // Split text into paragraphs based on one or more newlines
-  const paragraphs = text.split(/\n+/).filter((p) => p.trim() !== '');
+  // Step 1: Pre-processing (Normalization)
+  // Standardize whitespace and remove trailing/leading spaces.
+  const normalized = text
+    .replace(/\t/g, ' ')
+    .replace(/\r/g, '')
+    .trim();
 
-  const justifiedParagraphs = paragraphs.map((paragraph) => {
-    // Normalize whitespace
-    const words = paragraph.trim().split(/\s+/);
+  // Step 2: Paragraph Identification
+  // We treat batches of newlines as paragraph breaks.
+  const paragraphs = normalized.split(/\n\s*\n/);
 
-    if (words.length === 0 || (words.length === 1 && words[0] === '')) {
-      return '';
-    }
+  const resultLines: string[] = [];
 
-    const lines: string[] = [];
+  // Iterate through each logical paragraph
+  for (const paragraph of paragraphs) {
+    // Step 3: Extract words (Normalize internal newlines to spaces)
+    const words = paragraph.replace(/\n/g, ' ').split(/\s+/).filter((w) => w !== '');
+    if (words.length === 0) continue;
+
     let currentLineWords: string[] = [];
-    let currentLineLength = 0;
+    let currentLineChars = 0;
 
+    // Step 4: Greedy word packing with justification trigger
     for (const word of words) {
-      const spaceNeeded = currentLineWords.length > 0 ? 1 : 0;
+      // Condition: [Existing Chars] + [New Word] + [Min Spaces (Gap Count)]
+      // The currentLineWords.length acts as the count of gaps we would have if we add this word.
+      const estimatedLength = currentLineChars + word.length + currentLineWords.length;
 
-      if (currentLineLength + spaceNeeded + word.length <= MAX_LINE_LENGTH) {
-        currentLineWords.push(word);
-        currentLineLength += word.length + spaceNeeded;
-      } else {
-        // Justify the current line if it contains words
-        if (currentLineWords.length > 0) {
-          const lengthWithoutSpaces =
-            currentLineLength - (currentLineWords.length - 1);
-          lines.push(justifyLine(currentLineWords, lengthWithoutSpaces));
-        }
+      if (estimatedLength > MAX_WIDTH && currentLineWords.length > 0) {
+        // Line is full -> Justify and push to results
+        resultLines.push(justifyLine(currentLineWords, currentLineChars));
 
-        // Reset for the new line starting with this word
+        // Start next line with current word
         currentLineWords = [word];
-        currentLineLength = word.length;
+        currentLineChars = word.length;
+      } else {
+        // Word fits -> Add to current line
+        currentLineWords.push(word);
+        currentLineChars += word.length;
       }
     }
 
-    // Handle the last line (left-aligned)
+    // Step 5: Handle the last line of the paragraph (Left-aligned)
     if (currentLineWords.length > 0) {
-      lines.push(currentLineWords.join(' '));
+      resultLines.push(currentLineWords.join(' '));
     }
+  }
 
-    return lines.join('\n');
-  });
-
-  return justifiedParagraphs.filter((p) => p !== '').join('\n');
+  // Step 6: Final Compilation
+  // Joins all lines with a single newline, fulfilling the "several \n -> one \n" constraint for the final output.
+  return resultLines.join('\n');
 };
