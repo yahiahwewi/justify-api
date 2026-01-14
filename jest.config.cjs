@@ -13,6 +13,7 @@ module.exports = {
             },
         ],
     },
+    testMatch: ['**/src/**/*.test.ts'],
     collectCoverageFrom: [
         'src/**/*.ts',
         '!src/**/*.test.ts',
