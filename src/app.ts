@@ -7,14 +7,11 @@ const app: Application = express();
 
 app.use(express.json());
 app.use(express.text());
+app.use(express.static('public'));
 
 // Enregistrement des routes
 app.use('/api', authRoutes);
 app.use('/api', justifyRoutes);
-
-app.get('/', (req: Request, res: Response) => {
-    res.send('Justify API est opérationnelle');
-});
 
 // Gestion des erreurs (doit être après les routes)
 app.use(notFoundHandler);

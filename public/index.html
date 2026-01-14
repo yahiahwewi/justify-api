@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justify API | Typographie de Précision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent),
+                        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        header {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Demo Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 968px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .step-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: #fff;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 200px;
+            font-size: 0.95rem;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
+        }
+
+        button:active { transform: translateY(0); }
+
+        /* Preview Area */
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .preview-container {
+            background: #000;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .preview-container::before {
+            content: "80 CARACTÈRES";
+            position: absolute;
+            top: 0;
+            right: 1.5rem;
+            font-size: 10px;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.5;
+        }
+
+        #output {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            white-space: pre;
+            color: #fff;
+            line-height: 1.5;
+            width: fit-content;
+            transition: opacity 0.3s;
+        }
+
+        .token-display {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px dashed var(--primary);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            word-break: break-all;
+            display: none;
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+            padding-bottom: 4rem;
+        }
+
+        .feat-item h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .feat-item p {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .status-msg {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .error { color: #ef4444; }
+        .success { color: #10b981; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Justify API</h1>
+        <p class="subtitle">L'outil professionnel pour une justification typographique parfaite de 80 caractères par ligne.</p>
+    </header>
+
+    <div class="grid">
+        <!-- Configuration -->
+        <div class="card">
+            <span class="step-badge">Étape 1 & 2</span>
+            <h3>Configuration & Envoi</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-dim); font-size: 0.9rem;">
+                Obtenez un token avec votre email, puis soumettez votre texte.
+            </p>
+
+            <div class="input-group">
+                <label for="email">Votre Email</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="email" id="email" placeholder="nom@exemple.com">
+                    <button id="btnToken" style="width: auto; padding: 0 1.5rem;">Token</button>
+                </div>
+                <div id="tokenDisplay" class="token-display"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="input-text">Texte à Justifier</label>
+                <textarea id="input-text" placeholder="Collez votre texte ici..."></textarea>
+            </div>
+
+            <button id="btnJustify">Justifier le Texte</button>
+            <div id="status" class="status-msg"></div>
+        </div>
+
+        <!-- Preview -->
+        <div class="card">
+            <span class="step-badge">Aperçu Live</span>
+            <div class="preview-header">
+                <h3>Le Rendu Final</h3>
+                <span id="char-count" style="font-size: 0.8rem; color: var(--text-dim);">Largeur : 80</span>
+            </div>
+            
+            <div class="preview-container">
+                <div id="output">Le résultat s'affichera ici après traitement...</div>
+            </div>
+
+            <div class="features" style="margin-top: 2rem; padding: 0;">
+                <div class="feat-item">
+                    <h3>7,980</h3>
+                    <p>Mots par ligne max</p>
+                </div>
+                <div class="feat-item">
+                    <h3>80,000</h3>
+                    <p>Quota Quotidien</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="features">
+        <div class="feat-item">
+            <h3>📏 Règle des 80</h3>
+            <p>Conforme aux standards de codage et de lecture optimale. Chaque ligne est calculée au caractère près.</p>
+        </div>
+        <div class="feat-item">
+            <h3>🧠 Logique Pure</h3>
+            <p>Zéro bibliothèque externe. Algorithme de redistribution des espaces propriétaire pour une harmonie parfaite.</p>
+        </div>
+        <div class="feat-item">
+            <h3>🔒 Token Unique</h3>
+            <p>Sécurisation par Bearer token et suivi précis de votre consommation quotidienne de mots.</p>
+        </div>
+    </section>
+</div>
+
+<script>
+    const elToken = document.getElementById('tokenDisplay');
+    const elInput = document.getElementById('input-text');
+    const elOutput = document.getElementById('output');
+    const elStatus = document.getElementById('status');
+    const elEmail = document.getElementById('email');
+
+    let currentToken = '';
+
+    // Step 1: Get Token
+    document.getElementById('btnToken').addEventListener('click', async () => {
+        const email = elEmail.value;
+        if (!email) return showStatus("Veuillez entrer un email", "error");
+
+        try {
+            const res = await fetch('/api/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (data.token) {
+                currentToken = data.token;
+                elToken.textContent = "Token: " + currentToken;
+                elToken.style.display = 'block';
+                showStatus("Token généré avec succès !", "success");
+            }
+        } catch (e) {
+            showStatus("Erreur lors de la génération du token", "error");
+        }
+    });
+
+    // Step 2: Justify
+    document.getElementById('btnJustify').addEventListener('click', async () => {
+        const text = elInput.value;
+        if (!currentToken) return showStatus("Veuillez d'abord générer un token", "error");
+        if (!text) return showStatus("Veuillez entrer du texte", "error");
+
+        showStatus("Traitement en cours...", "");
+        elOutput.classList.add('loading');
+
+        try {
+            const res = await fetch('/api/justify', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'text/plain',
+                    'Authorization': 'Bearer ' + currentToken
+                },
+                body: text
+            });
+
+            if (res.status === 402) {
+                showStatus("Erreur 402 : Limite de mots atteinte (80 000)", "error");
+                return;
+            }
+
+            if (!res.ok) {
+                const err = await res.json();
+                showStatus(err.message || "Erreur de justification", "error");
+                return;
+            }
+
+            const justified = await res.text();
+            elOutput.textContent = justified;
+            showStatus("Justification terminée 🚀", "success");
+        } catch (e) {
+            showStatus("Erreur de connexion à l'API", "error");
+        } finally {
+            elOutput.classList.remove('loading');
+        }
+    });
+
+    function showStatus(msg, type) {
+        elStatus.textContent = msg;
+        elStatus.className = 'status-msg ' + type;
+    }
+
+    // Default Demo Content
+    elInput.value = "Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire: «Je m’endors.» Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait; je voulais poser le volume que je croyais avoir dans les mains et souffler ma lumière; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier; il me semblait que j’étais moi-même ce dont parlait l’ouvrage: une église, un quatuor, la rivalité de François Ier et de Charles-Quint.";
+</script>
+
+</body>
+</html>
