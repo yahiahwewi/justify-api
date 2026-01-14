@@ -1,108 +1,129 @@
 /**
- * Text Justification Utility - Logique Pure
- * 
- * This module implements a precise text justification algorithm following typographic rules:
- * - Line width: exactly 80 characters.
- * - Uniform space distribution between words.
- * - Last line of paragraphs is left-aligned.
- * - Words are never modified or concatenated.
+ * Text Justification Utility - Token-Based Logique Pure
+ *
+ * This implementation treats spaces as first-class tokens to preserve semantic spacing
+ * (e.g., double spaces within a line) while fulfilling the 80-character justification constraint.
  */
 
 const MAX_WIDTH = 80;
 
 /**
- * Justifies a single line of words to exactly MAX_WIDTH characters.
- * 
- * @param words - Array of words for the current line
- * @param charCount - Sum of lengths of all words in the line
+ * Justifies a line by distributing extra spaces into existing space tokens.
+ *
+ * @param tokens - Array of words and space-tokens for the current line
  * @returns Fully justified string of exactly 80 characters
  */
-const justifyLine = (words: string[], charCount: number): string => {
-  if (words.length <= 1) {
-    return words[0] || '';
+const justifyLineTokens = (tokens: string[]): string => {
+  // Identify space slots (indices of tokens that are whitespace)
+  const spaceSlotIndices = tokens
+    .map((t, i) => (t.trim() === '' ? i : -1))
+    .filter((i) => i !== -1);
+
+  const currentLength = tokens.join('').length;
+
+  // If no space slots (single word longer than 80 chars) or already at width
+  if (spaceSlotIndices.length === 0 || currentLength >= MAX_WIDTH) {
+    return tokens.join('');
   }
 
-  const totalSpacesNeeded = MAX_WIDTH - charCount;
-  const gaps = words.length - 1;
+  const spacesToAdd = MAX_WIDTH - currentLength;
+  const spacesPerSlot = Math.floor(spacesToAdd / spaceSlotIndices.length);
+  let extraSpaces = spacesToAdd % spaceSlotIndices.length;
 
-  // Each gap gets at least this many spaces
-  const spacesPerGap = Math.floor(totalSpacesNeeded / gaps);
-  // Remainder spaces to distribute from left to right
-  let extraSpaces = totalSpacesNeeded % gaps;
-
-  let line = '';
-  for (let i = 0; i < words.length; i++) {
-    line += words[i];
-
-    if (i < gaps) {
-      const spacesToApply = spacesPerGap + (extraSpaces > 0 ? 1 : 0);
-      line += ' '.repeat(spacesToApply);
-      if (extraSpaces > 0) extraSpaces--;
-    }
+  const newTokens = [...tokens];
+  for (const index of spaceSlotIndices) {
+    const additional = spacesPerSlot + (extraSpaces > 0 ? 1 : 0);
+    newTokens[index] += ' '.repeat(additional);
+    if (extraSpaces > 0) extraSpaces--;
   }
 
-  return line;
+  return newTokens.join('');
 };
 
 /**
  * Main justification function.
- * Implements the "Logique Pure" flow:
- * 1. Normalize whitespace (tabs to spaces).
- * 2. Identify paragraphs (split by double newlines).
- * 3. For each paragraph, build lines and justify them.
- * 4. Join all justified lines into a final text/plain response.
- * 
- * @param text - The raw input text
- * @returns Fully justified text
+ * Implements the token-based "Pure Logic" approach:
+ * 1. Safe normalization (tabs, line endings).
+ * 2. Paragraph detection (split by double newlines).
+ * 3. Tokenization (preserving all word-internal spaces).
+ * 4. Incremental line building without word alteration.
  */
 export const justifyText = (text: string): string => {
-  if (!text || text.trim() === '') {
-    return '';
-  }
+  if (!text) return '';
 
-  // Pre-processing
+  // 1. Normalize safely
   const normalized = text
-    .replace(/\t/g, ' ')
-    .replace(/\r/g, '')
-    .trim();
+    .replace(/\t/g, ' ') // Replace tabs with space
+    .replace(/\r\n/g, '\n'); // Normalize line endings
 
-  // Split into paragraphs based on double newlines (or more)
-  const paragraphBlocks = normalized.split(/\n\s*\n/);
-  const resultLines: string[] = [];
+  // 2. Detect paragraphs (separated by 2 or more newlines)
+  const paragraphs = normalized.split(/\n{2,}/);
 
-  for (const block of paragraphBlocks) {
-    // Flatten internal structure of the paragraph and get words
-    const words = block.replace(/\n/g, ' ').split(/\s+/).filter(w => w !== '');
-    if (words.length === 0) continue;
+  const resultParagraphs = paragraphs.map((para) => {
+    // 3. Tokenize the paragraph while preserving all spaces
+    // We trim leading/trailing spaces for the paragraph block itself,
+    // but keep everything in between.
+    const tokens = para
+      .replace(/\n/g, ' ') // Flatten internal newlines to spaces
+      .trim()
+      .split(/(\s+)/)
+      .filter((t) => t !== '');
 
-    let currentLineWords: string[] = [];
-    let currentLineCharCount = 0;
+    if (tokens.length === 0) return '';
 
-    for (const word of words) {
-      // Calculate mandatory length: words + minimum spaces (1 per gap)
-      // currentLineWords.length gives us the number of gaps if we add the current word
-      const minLengthIfAdded = currentLineCharCount + word.length + currentLineWords.length;
+    const lines: string[] = [];
+    let currentLineTokens: string[] = [];
+    let currentLineLength = 0;
 
-      if (minLengthIfAdded > MAX_WIDTH && currentLineWords.length > 0) {
-        // Current line is full. Justify it and push.
-        resultLines.push(justifyLine(currentLineWords, currentLineCharCount));
+    // 4. Build lines incrementally
+    for (const token of tokens) {
+      // Rule: Never start a line with a space token
+      if (currentLineTokens.length === 0 && token.trim() === '') continue;
 
-        // Reset for the next line starting with this word
-        currentLineWords = [word];
-        currentLineCharCount = word.length;
+      if (currentLineLength + token.length <= MAX_WIDTH) {
+        currentLineTokens.push(token);
+        currentLineLength += token.length;
       } else {
-        // Word fits in the current line
-        currentLineWords.push(word);
-        currentLineCharCount += word.length;
+        // Current token doesn't fit. Justify current line first.
+
+        // Remove trailing space token if it exists before justification
+        if (
+          currentLineTokens.length > 0 &&
+          currentLineTokens[currentLineTokens.length - 1]?.trim() === ''
+        ) {
+          const removed = currentLineTokens.pop()!;
+          currentLineLength -= removed.length;
+        }
+
+        if (currentLineTokens.length > 0) {
+          lines.push(justifyLineTokens(currentLineTokens));
+        }
+
+        // Start new line. If token is space, skip it (starting line with word)
+        if (token.trim() !== '') {
+          currentLineTokens = [token];
+          currentLineLength = token.length;
+        } else {
+          currentLineTokens = [];
+          currentLineLength = 0;
+        }
       }
     }
 
-    // Handle the last line of the paragraph (Left-aligned)
-    if (currentLineWords.length > 0) {
-      resultLines.push(currentLineWords.join(' '));
+    // 5. Handle the last line of the paragraph (Left-aligned)
+    if (currentLineTokens.length > 0) {
+      // Cleanup trailing space
+      if (
+        currentLineTokens[currentLineTokens.length - 1]?.trim() === ''
+      ) {
+        currentLineTokens.pop();
+      }
+      lines.push(currentLineTokens.join(''));
     }
-  }
 
-  // Final join: fulfill the requirement of single newlines between all lines
-  return resultLines.join('\n');
+    return lines.join('\n');
+  });
+
+  // 6. Join paragraphs with single empty line (\n\n)
+  return resultParagraphs.filter((p) => p !== '').join('\n\n');
 };
