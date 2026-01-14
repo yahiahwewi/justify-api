@@ -20,6 +20,15 @@ npm test
 npm run test:coverage
 ```
 
+### 🌐 Deployment
+The API is configured for automatic deployment on **Render** via the included `render.yaml` Blueprint.
+
+**Deploy Status:** [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yahiahwewi/justify-api)
+
+**Public URL:** [https://justify-api-yahiahwewi.onrender.com](https://justify-api-yahiahwewi.onrender.com) (Live after setup)
+
+---
+
 ## 🛠 API Usage
 
 ### 1. Get Authentication Token
