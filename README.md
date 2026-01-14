@@ -25,7 +25,7 @@ The API is configured for automatic deployment on **Render** via the included `r
 
 **Deploy Status:** [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yahiahwewi/justify-api)
 
-**Public URL:** [https://justify-api-yahiahwewi.onrender.com](https://justify-api-yahiahwewi.onrender.com) (Live after setup)
+**Public URL:** [https://justify-api.onrender.com](https://justify-api.onrender.com) (Live)
 
 ---
 
@@ -34,7 +34,7 @@ The API is configured for automatic deployment on **Render** via the included `r
 ### 1. Get Authentication Token
 Request a unique token using your email. This token is required for the justification service.
 
-**Endpoint:** `POST /api/token`  
+**Endpoint:** `POST https://justify-api.onrender.com/api/token`  
 **Body (JSON):**
 ```json
 {
@@ -45,7 +45,7 @@ Request a unique token using your email. This token is required for the justific
 ### 2. Justify Text
 Justify your text to exactly 80 characters per line.
 
-**Endpoint:** `POST /api/justify`  
+**Endpoint:** `POST https://justify-api.onrender.com/api/justify`  
 **Headers:**
 - `Content-Type: text/plain`
 - `Authorization: Bearer <your_token>`
