@@ -3,7 +3,7 @@ import { usageStore } from '../store.js';
 
 describe('Rate Limit Service', () => {
   const token = 'test-token';
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0]!;
 
   beforeEach(() => {
     usageStore.clear();
@@ -38,7 +38,7 @@ describe('Rate Limit Service', () => {
   });
 
   it('should reset usage on new day', () => {
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]!;
     usageStore.set(token, {
       words: MAX_WORDS_PER_DAY,
       lastReset: yesterday,
