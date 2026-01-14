@@ -21,15 +21,11 @@ npm run test:coverage
 ```
 
 ### 🌐 Deployment
-The API is configured for deployment on **Heroku**. 
+The API is configured for automatic deployment on **Render** via the included `render.yaml` Blueprint.
 
-**Public URL:** [https://justify-api-proust.herokuapp.com](https://justify-api-proust.herokuapp.com) (Update this with your app name)
+**Deploy Status:** [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/yahiahwewi/justify-api)
 
-**Deployment Steps:**
-1. Create a new app on the [Heroku Dashboard](https://dashboard.heroku.com/).
-2. Connect your GitHub repository to the app.
-3. Enable "Automatic Deploys" from the `main` branch.
-4. Ensure the `Procfile` is pushed to your repository.
+**Public URL:** [https://justify-api.onrender.com](https://justify-api.onrender.com) (Live)
 
 ---
 
@@ -38,7 +34,7 @@ The API is configured for deployment on **Heroku**.
 ### 1. Get Authentication Token
 Request a unique token using your email. This token is required for the justification service.
 
-**Endpoint:** `POST https://justify-api-proust.herokuapp.com/api/token`  
+**Endpoint:** `POST https://justify-api.onrender.com/api/token`  
 **Body (JSON):**
 ```json
 {
@@ -49,7 +45,7 @@ Request a unique token using your email. This token is required for the justific
 ### 2. Justify Text
 Justify your text to exactly 80 characters per line.
 
-**Endpoint:** `POST https://justify-api-proust.herokuapp.com/api/justify`  
+**Endpoint:** `POST https://justify-api.onrender.com/api/justify`  
 **Headers:**
 - `Content-Type: text/plain`
 - `Authorization: Bearer <your_token>`
