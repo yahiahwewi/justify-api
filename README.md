@@ -23,7 +23,7 @@ npm run test:coverage
 ### 🌐 Déploiement
 L'API est configurée pour être déployée sur **Render** via le fichier `render.yaml`.
 
-**URL Publique :** [https://justify-api.onrender.com](https://justify-api.onrender.com) (Placeholder)
+**URL Publique :** [https://justify-api-qkyo.onrender.com](https://justify-api-qkyo.onrender.com) (Live)
 
 ---
 
@@ -32,7 +32,7 @@ L'API est configurée pour être déployée sur **Render** via le fichier `rende
 ### 1. Obtenir un Token d'Authentification
 Demandez un token unique en utilisant votre email. Ce token est requis pour utiliser le service de justification.
 
-**Endpoint :** `POST /api/token`  
+**Endpoint :** `POST https://justify-api-qkyo.onrender.com/api/token`  
 **Corps (JSON) :**
 ```json
 {
@@ -43,7 +43,7 @@ Demandez un token unique en utilisant votre email. Ce token est requis pour util
 ### 2. Justifier du Texte
 Justifiez votre texte à exactement 80 caractères par ligne.
 
-**Endpoint :** `POST /api/justify`  
+**Endpoint :** `POST https://justify-api-qkyo.onrender.com/api/justify`  
 **Headers :**
 - `Content-Type: text/plain`
 - `Authorization: Bearer <votre_token>`
