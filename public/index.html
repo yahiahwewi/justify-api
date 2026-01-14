@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Justify API | Typographie de Précision</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -17,6 +20,7 @@
             --text-dim: #94a3b8;
             --border: rgba(255, 255, 255, 0.1);
             --accent: #8b5cf6;
+            --code-bg: #000000;
         }
 
         * {
@@ -32,7 +36,7 @@
             line-height: 1.6;
             overflow-x: hidden;
             background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent),
-                        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent);
+                radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.15), transparent);
             min-height: 100vh;
         }
 
@@ -42,10 +46,40 @@
             padding: 2rem;
         }
 
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            color: #fff;
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
         /* Hero Section */
         header {
             text-align: center;
-            padding: 4rem 0 2rem;
+            padding: 2rem 0 3rem;
             animation: fadeIn 1s ease-out;
         }
 
@@ -66,18 +100,17 @@
             margin: 0 auto;
         }
 
-        /* Demo Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 3rem;
+        /* Sections */
+        .section-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        @media (max-width: 968px) {
-            .grid { grid-template-columns: 1fr; }
+        .section-content.active {
+            display: block;
         }
 
+        /* Cards */
         .card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
@@ -85,20 +118,22 @@
             border-radius: 1.5rem;
             padding: 2rem;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
+            margin-bottom: 2rem;
         }
 
-        .step-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: var(--primary);
-            border-radius: 2rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
         }
 
+        @media (max-width: 968px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Demo UI */
         .input-group {
             margin-bottom: 1.5rem;
         }
@@ -106,12 +141,12 @@
         label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
             color: var(--text-dim);
             font-size: 0.9rem;
         }
 
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border);
@@ -119,69 +154,32 @@
             padding: 1rem;
             color: #fff;
             font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            height: 200px;
-            font-size: 0.95rem;
         }
 
         button {
-            width: 100%;
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white;
             border: none;
             padding: 1rem;
             border-radius: 0.75rem;
             font-weight: 600;
-            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
             filter: brightness(1.1);
         }
 
-        button:active { transform: translateY(0); }
-
         /* Preview Area */
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
         .preview-container {
-            background: #000;
+            background: var(--code-bg);
             border-radius: 1rem;
             padding: 1.5rem;
             border: 1px solid var(--border);
             overflow-x: auto;
             position: relative;
-        }
-
-        .preview-container::before {
-            content: "80 CARACTÈRES";
-            position: absolute;
-            top: 0;
-            right: 1.5rem;
-            font-size: 10px;
-            color: var(--text-dim);
-            font-family: 'JetBrains Mono', monospace;
-            opacity: 0.5;
         }
 
         #output {
@@ -191,49 +189,89 @@
             color: #fff;
             line-height: 1.5;
             width: fit-content;
-            transition: opacity 0.3s;
         }
 
-        .token-display {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px dashed var(--primary);
-            padding: 0.75rem;
+        /* Documentation & Postman Styles */
+        .doc-section {
+            margin-bottom: 2rem;
+        }
+
+        .doc-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .doc-section p {
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 1rem;
             border-radius: 0.5rem;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            word-break: break-all;
-            display: none;
+            font-size: 0.9rem;
+            color: #6ee7b7;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary);
         }
 
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-            padding-bottom: 4rem;
+        ul {
+            list-style: none;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
         }
 
-        .feat-item h3 {
+        ul li {
             margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        ul li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
             color: var(--primary);
         }
 
-        .feat-item p {
-            font-size: 0.95rem;
-            color: var(--text-dim);
+        .step-number {
+            background: var(--primary);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
         }
 
-        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .loading {
-            opacity: 0.5;
-            pointer-events: none;
+        .token-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px dashed var(--primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none;
+            word-break: break-all;
         }
 
         .status-msg {
@@ -242,167 +280,212 @@
             text-align: center;
         }
 
-        .error { color: #ef4444; }
-        .success { color: #10b981; }
+        .error {
+            color: #ef4444;
+        }
 
+        .success {
+            color: #10b981;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <header>
-        <h1>Justify API</h1>
-        <p class="subtitle">L'outil professionnel pour une justification typographique parfaite de 80 caractères par ligne.</p>
-    </header>
+    <div class="container">
+        <header>
+            <h1>Justify API</h1>
+            <p class="subtitle">Excellence typographique & Performance Node.js</p>
+        </header>
 
-    <div class="grid">
-        <!-- Configuration -->
-        <div class="card">
-            <span class="step-badge">Étape 1 & 2</span>
-            <h3>Configuration & Envoi</h3>
-            <p style="margin-bottom: 1.5rem; color: var(--text-dim); font-size: 0.9rem;">
-                Obtenez un token avec votre email, puis soumettez votre texte.
-            </p>
+        <nav>
+            <button class="nav-btn active" onclick="showSection('demo', this)">Démo Live</button>
+            <button class="nav-btn" onclick="showSection('postman', this)">Test Postman</button>
+            <button class="nav-btn" onclick="showSection('doc', this)">Documentation</button>
+        </nav>
 
-            <div class="input-group">
-                <label for="email">Votre Email</label>
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="email" id="email" placeholder="nom@exemple.com">
-                    <button id="btnToken" style="width: auto; padding: 0 1.5rem;">Token</button>
+        <!-- SECTION DEMO -->
+        <div id="demo" class="section-content active">
+            <div class="grid">
+                <div class="card">
+                    <h3>Configuration</h3>
+                    <div class="input-group">
+                        <label>Obtenir un Token</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="email" id="email" placeholder="votre@email.com">
+                            <button id="btnToken">Générer</button>
+                        </div>
+                        <div id="tokenDisplay" class="token-box"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Texte à Justifier</label>
+                        <textarea id="input-text" placeholder="Entrez votre texte ici..."></textarea>
+                    </div>
+                    <button id="btnJustify" style="width: 100%;">Lancer la Justification</button>
+                    <div id="status" class="status-msg"></div>
                 </div>
-                <div id="tokenDisplay" class="token-display"></div>
-            </div>
 
-            <div class="input-group">
-                <label for="input-text">Texte à Justifier</label>
-                <textarea id="input-text" placeholder="Collez votre texte ici..."></textarea>
+                <div class="card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Rendu (80 colonnes)</h3>
+                        <span style="font-size: 0.8rem; color: var(--text-dim);">Format: text/plain</span>
+                    </div>
+                    <div class="preview-container">
+                        <div id="output">Le résultat apparaîtra ici...</div>
+                    </div>
+                </div>
             </div>
-
-            <button id="btnJustify">Justifier le Texte</button>
-            <div id="status" class="status-msg"></div>
         </div>
 
-        <!-- Preview -->
-        <div class="card">
-            <span class="step-badge">Aperçu Live</span>
-            <div class="preview-header">
-                <h3>Le Rendu Final</h3>
-                <span id="char-count" style="font-size: 0.8rem; color: var(--text-dim);">Largeur : 80</span>
-            </div>
-            
-            <div class="preview-container">
-                <div id="output">Le résultat s'affichera ici après traitement...</div>
-            </div>
+        <!-- SECTION POSTMAN -->
+        <div id="postman" class="section-content">
+            <div class="card">
+                <div class="doc-section">
+                    <h3>🚀 Instructions Postman</h3>
+                    <p>Suivez ces étapes pour tester l'API directement depuis Postman.</p>
 
-            <div class="features" style="margin-top: 2rem; padding: 0;">
-                <div class="feat-item">
-                    <h3>7,980</h3>
-                    <p>Mots par ligne max</p>
+                    <div style="margin-bottom: 2rem;">
+                        <p><span class="step-number">1</span><strong>Récupérer le Token</strong></p>
+                        <ul>
+                            <li>Méthode: <code>POST</code></li>
+                            <li>URL: <code>https://justify-api-qkyo.onrender.com/api/token</code></li>
+                            <li>Body (JSON): <code>{ "email": "foo@bar.com" }</code></li>
+                        </ul>
+                        <div class="code-block">POST /api/token<br>Content-Type: application/json<br><br>{ "email":
+                            "foo@bar.com" }</div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <p><span class="step-number">2</span><strong>Utiliser le Service de Justification</strong></p>
+                        <ul>
+                            <li>Méthode: <code>POST</code></li>
+                            <li>URL: <code>https://justify-api-qkyo.onrender.com/api/justify</code></li>
+                            <li>Header: <code>Content-Type: text/plain</code></li>
+                            <li>Auth: <code>Bearer Token</code> (Collez le token reçu à l'étape 1)</li>
+                            <li>Body: Sélectionnez <strong>raw</strong> puis <strong>Text</strong>. Collez votre texte
+                                long.</li>
+                        </ul>
+                        <div class="code-block">POST /api/justify<br>Authorization: Bearer
+                            YOUR_TOKEN_HERE<br>Content-Type: text/plain<br><br>Votre texte long ici...</div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <p><span class="step-number">3</span><strong>Vérifier les Limites (402)</strong></p>
+                        <p>Si vous envoyez plus de 80 000 mots cumulés par jour avec le même token, l'API renverra :</p>
+                        <div class="code-block" style="border-left-color: #ef4444; color: #ef4444;">HTTP/1.1 402 Payment
+                            Required<br>{ "error": "Payment Required", "message": "Limite de mots atteinte" }</div>
+                    </div>
                 </div>
-                <div class="feat-item">
-                    <h3>80,000</h3>
-                    <p>Quota Quotidien</p>
+            </div>
+        </div>
+
+        <!-- SECTION DOCUMENTATION -->
+        <div id="doc" class="section-content">
+            <div class="card">
+                <div class="doc-section">
+                    <h3>📖 Spécifications Techniques</h3>
+                    <p>Justify API est conçue pour respecter les standards typographiques les plus stricts.</p>
+                    <ul>
+                        <li><strong>Largeur Fixe :</strong> Chaque ligne (sauf la dernière d'un paragraphe) fait
+                            exactement 80 caractères.</li>
+                        <li><strong>Logique Pure :</strong> Algorithme personnalisé sans bibliothèques externes.</li>
+                        <li><strong>Backend :</strong> Node.js + TypeScript avec architecture middleware.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h3>⚖️ Contraintes du Projet</h3>
+                    <ul>
+                        <li>Authentification via Token unique requis pour chaque utilisateur.</li>
+                        <li>Rate Limit fixé à <strong>80 000 mots / 24h</strong>.</li>
+                        <li>Support exclusif du format <code>text/plain</code> pour la justification.</li>
+                        <li>Déploiement automatique via Render Blueprint.</li>
+                    </ul>
+                </div>
+
+                <div class="doc-section">
+                    <h3>🧩 Algorithme (Logic Flow)</h3>
+                    <p>Le traitement se déroule en 4 phases :</p>
+                    <ol style="color: var(--text-dim); margin-left: 1.5rem;">
+                        <li><strong>Tokenisation :</strong> Découpage en mots et préservation des espaces sémantiques.
+                        </li>
+                        <li><strong>Empilage :</strong> Accumulation des tokens jusqu'à la limite de 80 caractères.</li>
+                        <li><strong>Justification :</strong> Calcul du gap et distribution uniforme des espaces de
+                            gauche à droite.</li>
+                        <li><strong>Nettoyage :</strong> Alignement à gauche des lignes creuses (fin de paragraphe).
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
     </div>
 
-    <section class="features">
-        <div class="feat-item">
-            <h3>📏 Règle des 80</h3>
-            <p>Conforme aux standards de codage et de lecture optimale. Chaque ligne est calculée au caractère près.</p>
-        </div>
-        <div class="feat-item">
-            <h3>🧠 Logique Pure</h3>
-            <p>Zéro bibliothèque externe. Algorithme de redistribution des espaces propriétaire pour une harmonie parfaite.</p>
-        </div>
-        <div class="feat-item">
-            <h3>🔒 Token Unique</h3>
-            <p>Sécurisation par Bearer token et suivi précis de votre consommation quotidienne de mots.</p>
-        </div>
-    </section>
-</div>
+    <script>
+        function showSection(id, btn) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
 
-<script>
-    const elToken = document.getElementById('tokenDisplay');
-    const elInput = document.getElementById('input-text');
-    const elOutput = document.getElementById('output');
-    const elStatus = document.getElementById('status');
-    const elEmail = document.getElementById('email');
+        const elToken = document.getElementById('tokenDisplay');
+        const elInput = document.getElementById('input-text');
+        const elOutput = document.getElementById('output');
+        const elStatus = document.getElementById('status');
+        const elEmail = document.getElementById('email');
 
-    let currentToken = '';
+        let currentToken = '';
 
-    // Step 1: Get Token
-    document.getElementById('btnToken').addEventListener('click', async () => {
-        const email = elEmail.value;
-        if (!email) return showStatus("Veuillez entrer un email", "error");
-
-        try {
-            const res = await fetch('/api/token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (data.token) {
+        document.getElementById('btnToken').addEventListener('click', async () => {
+            const email = elEmail.value;
+            if (!email) return showStatus("Email requis", "error");
+            try {
+                const res = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
                 currentToken = data.token;
-                elToken.textContent = "Token: " + currentToken;
+                elToken.textContent = "Bearer " + currentToken;
                 elToken.style.display = 'block';
-                showStatus("Token généré avec succès !", "success");
-            }
-        } catch (e) {
-            showStatus("Erreur lors de la génération du token", "error");
+                showStatus("Token généré !", "success");
+            } catch (e) { showStatus("Erreur réseau", "error"); }
+        });
+
+        document.getElementById('btnJustify').addEventListener('click', async () => {
+            const text = elInput.value;
+            if (!currentToken) return showStatus("Générez d'abord un token", "error");
+            if (!text) return showStatus("Texte vide", "error");
+
+            showStatus("Justification en cours...", "");
+            try {
+                const res = await fetch('/api/justify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: text
+                });
+                if (res.status === 402) return showStatus("Limite dépassée (402)", "error");
+                if (!res.ok) return showStatus("Erreur API", "error");
+
+                elOutput.textContent = await res.text();
+                showStatus("Terminé !", "success");
+            } catch (e) { showStatus("Erreur réseau", "error"); }
+        });
+
+        function showStatus(msg, type) {
+            elStatus.textContent = msg;
+            elStatus.className = 'status-msg ' + type;
         }
-    });
 
-    // Step 2: Justify
-    document.getElementById('btnJustify').addEventListener('click', async () => {
-        const text = elInput.value;
-        if (!currentToken) return showStatus("Veuillez d'abord générer un token", "error");
-        if (!text) return showStatus("Veuillez entrer du texte", "error");
-
-        showStatus("Traitement en cours...", "");
-        elOutput.classList.add('loading');
-
-        try {
-            const res = await fetch('/api/justify', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'text/plain',
-                    'Authorization': 'Bearer ' + currentToken
-                },
-                body: text
-            });
-
-            if (res.status === 402) {
-                showStatus("Erreur 402 : Limite de mots atteinte (80 000)", "error");
-                return;
-            }
-
-            if (!res.ok) {
-                const err = await res.json();
-                showStatus(err.message || "Erreur de justification", "error");
-                return;
-            }
-
-            const justified = await res.text();
-            elOutput.textContent = justified;
-            showStatus("Justification terminée 🚀", "success");
-        } catch (e) {
-            showStatus("Erreur de connexion à l'API", "error");
-        } finally {
-            elOutput.classList.remove('loading');
-        }
-    });
-
-    function showStatus(msg, type) {
-        elStatus.textContent = msg;
-        elStatus.className = 'status-msg ' + type;
-    }
-
-    // Default Demo Content
-    elInput.value = "Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire: «Je m’endors.» Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait; je voulais poser le volume que je croyais avoir dans les mains et souffler ma lumière; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier; il me semblait que j’étais moi-même ce dont parlait l’ouvrage: une église, un quatuor, la rivalité de François Ier et de Charles-Quint.";
-</script>
+        // Default Demo
+        elInput.value = "Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire: «Je m’endors.» Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait; je voulais poser le volume que je croyais avoir dans les mains et souffler ma lumière; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier; il me semblait que j’étais moi-même ce dont parlait l’ouvrage: une église, un quatuor, la rivalité de François Ier et de Charles-Quint.";
+    </script>
 
 </body>
+
 </html>
